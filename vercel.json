@@ -13,6 +13,18 @@
       "config": {
         "includeFiles": ["src/**"]
       }
+    },
+    {
+      "src": "api/debug.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["src/**"]
+      }
     }
+  ],
+  "routes": [
+    { "src": "/api/webhook", "dest": "/api/webhook.ts" },
+    { "src": "/api/view", "dest": "/api/view.ts" },
+    { "src": "/api/debug", "dest": "/api/debug.ts" }
   ]
 }

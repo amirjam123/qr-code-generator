@@ -18,6 +18,7 @@ bot.on("message", async (ctx, next) => {
 
 export async function registerBotCommands() {
   await bot.telegram.setMyCommands([
+    { command: "start", description: "شروع ربات" },
     { command: "generate", description: "ساخت کیو ار کد" },
     { command: "cancel", description: "لغو عملیات" },
   ]);
