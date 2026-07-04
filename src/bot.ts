@@ -1,6 +1,6 @@
 import { Telegraf } from "telegraf";
 import { BOT_TOKEN } from "./types";
-import { handleStart } from "./commands/start";
+import { handleStart, handleLangCallback } from "./commands/start";
 import { handleGenerate } from "./commands/generate";
 import { handleCancel } from "./commands/cancel";
 import { handleGenerateReply } from "./commands/handleReply";
@@ -10,6 +10,8 @@ export const bot = new Telegraf(BOT_TOKEN);
 bot.start(handleStart);
 bot.command("generate", handleGenerate);
 bot.command("cancel", handleCancel);
+
+bot.action(/^lang:.+$/, handleLangCallback);
 
 bot.on("message", async (ctx, next) => {
   const handled = await handleGenerateReply(ctx);
