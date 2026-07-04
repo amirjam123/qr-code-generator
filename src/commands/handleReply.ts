@@ -1,5 +1,5 @@
 import { Context } from "telegraf";
-import { GENERATE_PROMPT_TEXT, STORAGE_CHANNEL_ID, BASE_URL, MAX_FILE_SIZE } from "../types";
+import { STORAGE_CHANNEL_ID, BASE_URL, MAX_FILE_SIZE } from "../types";
 import { generateQRBuffer } from "../qr";
 import { getLang, Lang, fa, en } from "../i18n";
 
@@ -24,7 +24,7 @@ export async function handleGenerateReply(ctx: Context): Promise<boolean> {
 
   const repliedText =
     "text" in message.reply_to_message ? message.reply_to_message.text : undefined;
-  if (repliedText !== GENERATE_PROMPT_TEXT && repliedText !== fa.generatePrompt && repliedText !== en.generatePrompt) return false;
+  if (repliedText !== fa.generatePrompt && repliedText !== en.generatePrompt) return false;
 
   const lang = detectLang(ctx);
 
