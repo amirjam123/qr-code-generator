@@ -1,7 +1,7 @@
 import { Context } from "telegraf";
 import { STORAGE_CHANNEL_ID, BASE_URL, MAX_FILE_SIZE } from "../types";
 import { generateQRBuffer } from "../qr";
-import { getLang, Lang, fa, en } from "../i18n";
+import { t_, getUserLang, LANG_OPTIONS } from "../i18n";
 
 function getFileFromMessage(message: any): { file_id: string; file_name?: string; mime_type?: string; file_size?: number } | undefined {
   if (message.photo) return message.photo[message.photo.length - 1];
@@ -14,8 +14,12 @@ function getFileFromMessage(message: any): { file_id: string; file_name?: string
   return undefined;
 }
 
-function detectLang(ctx: Context): Lang {
-  return getLang(ctx.from?.language_code);
+async function detectLang(ctx: Context): Promise<string> {
+  if (ctx.from?.id) {
+    const saved = await getUserLang(ctx.from.id);
+    if (saved) return saved;
+  }
+  return ctx.from?.language_code || "en";
 }
 
 export async function handleGenerateReply(ctx: Context): Promise<boolean> {
@@ -24,9 +28,11 @@ export async function handleGenerateReply(ctx: Context): Promise<boolean> {
 
   const repliedText =
     "text" in message.reply_to_message ? message.reply_to_message.text : undefined;
-  if (repliedText !== fa.generatePrompt && repliedText !== en.generatePrompt) return false;
 
-  const lang = detectLang(ctx);
+  const allPrompts = Object.keys(LANG_OPTIONS).map((code) => t_(code, "generatePrompt"));
+  if (!repliedText || !allPrompts.includes(repliedText)) return false;
+
+  const lang = await detectLang(ctx);
 
   try {
     if ("text" in message && message.text) {
@@ -38,17 +44,17 @@ export async function handleGenerateReply(ctx: Context): Promise<boolean> {
     const file = getFileFromMessage(message);
 
     if (!file) {
-      await ctx.reply(lang.error);
+      await ctx.reply(t_(lang, "error"));
       return true;
     }
 
     if (file.file_size && file.file_size > MAX_FILE_SIZE) {
-      await ctx.reply(lang.fileTooLarge);
+      await ctx.reply(t_(lang, "fileTooLarge"));
       return true;
     }
 
     if (!STORAGE_CHANNEL_ID) {
-      await ctx.reply(lang.error);
+      await ctx.reply(t_(lang, "error"));
       console.error("STORAGE_CHANNEL_ID is not configured");
       return true;
     }
@@ -61,7 +67,7 @@ export async function handleGenerateReply(ctx: Context): Promise<boolean> {
 
     const forwardedFile = getFileFromMessage(forwarded);
     if (!forwardedFile) {
-      await ctx.reply(lang.error);
+      await ctx.reply(t_(lang, "error"));
       return true;
     }
 
@@ -77,7 +83,7 @@ export async function handleGenerateReply(ctx: Context): Promise<boolean> {
     return true;
   } catch (error) {
     console.error("Error in handleGenerateReply:", error);
-    await ctx.reply(lang.error);
+    await ctx.reply(t_(lang, "error"));
     return true;
   }
 }
