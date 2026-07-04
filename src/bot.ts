@@ -22,4 +22,5 @@ export async function registerBotCommands() {
     { command: "generate", description: "ساخت کیو ار کد" },
     { command: "cancel", description: "لغو عملیات" },
   ]);
+  await bot.telegram.setChatMenuButton({ menu_button: { type: "commands" } });
 }
