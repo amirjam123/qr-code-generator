@@ -1,9 +1,7 @@
 import { Context } from "telegraf";
 import { GENERATE_PROMPT_TEXT, STORAGE_CHANNEL_ID, BASE_URL, MAX_FILE_SIZE } from "../types";
 import { generateQRBuffer } from "../qr";
-
-const ERROR_MESSAGE = "متاسفانه خطایی در پردازش رخ داد. لطفا دوباره تلاش کنید.";
-const FILE_TOO_LARGE_MESSAGE = "حجم فایل بیش از ۲۰ مگابایت است و پشتیبانی نمی‌شود.";
+import { getLang, Lang, fa, en } from "../i18n";
 
 function getFileFromMessage(message: any): { file_id: string; file_name?: string; mime_type?: string; file_size?: number } | undefined {
   if (message.photo) return message.photo[message.photo.length - 1];
@@ -16,13 +14,19 @@ function getFileFromMessage(message: any): { file_id: string; file_name?: string
   return undefined;
 }
 
+function detectLang(ctx: Context): Lang {
+  return getLang(ctx.from?.language_code);
+}
+
 export async function handleGenerateReply(ctx: Context): Promise<boolean> {
   const message = ctx.message;
   if (!message || !("reply_to_message" in message) || !message.reply_to_message) return false;
 
   const repliedText =
     "text" in message.reply_to_message ? message.reply_to_message.text : undefined;
-  if (repliedText !== GENERATE_PROMPT_TEXT) return false;
+  if (repliedText !== GENERATE_PROMPT_TEXT && repliedText !== fa.generatePrompt && repliedText !== en.generatePrompt) return false;
+
+  const lang = detectLang(ctx);
 
   try {
     if ("text" in message && message.text) {
@@ -34,17 +38,17 @@ export async function handleGenerateReply(ctx: Context): Promise<boolean> {
     const file = getFileFromMessage(message);
 
     if (!file) {
-      await ctx.reply(ERROR_MESSAGE);
+      await ctx.reply(lang.error);
       return true;
     }
 
     if (file.file_size && file.file_size > MAX_FILE_SIZE) {
-      await ctx.reply(FILE_TOO_LARGE_MESSAGE);
+      await ctx.reply(lang.fileTooLarge);
       return true;
     }
 
     if (!STORAGE_CHANNEL_ID) {
-      await ctx.reply(ERROR_MESSAGE);
+      await ctx.reply(lang.error);
       console.error("STORAGE_CHANNEL_ID is not configured");
       return true;
     }
@@ -57,7 +61,7 @@ export async function handleGenerateReply(ctx: Context): Promise<boolean> {
 
     const forwardedFile = getFileFromMessage(forwarded);
     if (!forwardedFile) {
-      await ctx.reply(ERROR_MESSAGE);
+      await ctx.reply(lang.error);
       return true;
     }
 
@@ -73,7 +77,7 @@ export async function handleGenerateReply(ctx: Context): Promise<boolean> {
     return true;
   } catch (error) {
     console.error("Error in handleGenerateReply:", error);
-    await ctx.reply(ERROR_MESSAGE);
+    await ctx.reply(lang.error);
     return true;
   }
 }

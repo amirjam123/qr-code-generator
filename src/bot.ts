@@ -1,15 +1,18 @@
 import { Telegraf } from "telegraf";
 import { BOT_TOKEN, GENERATE_PROMPT_TEXT } from "./types";
-import { handleStart } from "./commands/start";
+import { handleStart, handleLangCallback } from "./commands/start";
 import { handleGenerate } from "./commands/generate";
 import { handleCancel } from "./commands/cancel";
 import { handleGenerateReply } from "./commands/handleReply";
+import { fa, en } from "./i18n";
 
 export const bot = new Telegraf(BOT_TOKEN);
 
 bot.start(handleStart);
 bot.command("generate", handleGenerate);
 bot.command("cancel", handleCancel);
+
+bot.action(/^lang:(fa|en)$/, handleLangCallback);
 
 bot.on("message", async (ctx, next) => {
   const handled = await handleGenerateReply(ctx);
@@ -18,9 +21,9 @@ bot.on("message", async (ctx, next) => {
 
 export async function registerBotCommands() {
   await bot.telegram.setMyCommands([
-    { command: "start", description: "شروع ربات" },
-    { command: "generate", description: "ساخت کیو ار کد" },
-    { command: "cancel", description: "لغو عملیات" },
+    { command: "start", description: "Start the bot" },
+    { command: "generate", description: "Generate QR Code" },
+    { command: "cancel", description: "Cancel operation" },
   ]);
-  await bot.telegram.setChatMenuButton({ menu_button: { type: "commands" } });
+  await bot.telegram.setChatMenuButton({ menuButton: { type: "commands" } });
 }
