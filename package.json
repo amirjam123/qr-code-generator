@@ -1,0 +1,18 @@
+{
+  "name": "qr-code-generator-bot",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4",
+    "telegraf": "^4.16.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/qrcode": "^1.5.5",
+    "@vercel/node": "^5.8.22",
+    "typescript": "^5.3.3"
+  }
+}

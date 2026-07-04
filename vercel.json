@@ -1,0 +1,18 @@
+{
+  "builds": [
+    {
+      "src": "api/webhook.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["src/**"]
+      }
+    },
+    {
+      "src": "api/view.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["src/**"]
+      }
+    }
+  ]
+}
